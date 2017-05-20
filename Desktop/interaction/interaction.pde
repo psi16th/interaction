@@ -138,8 +138,6 @@ void setup() {
 
     img = loadImage("data/rainbow.jpeg");
     img.resize(displayWidth, displayHeight);
-    //  img.resize(1920, 1080);
-    //  size(img.width, img.height, P3D);
     size(displayWidth, displayHeight, P3D);
     frame.setLocation(0, 0);
 
@@ -348,12 +346,7 @@ void draw() {
 
     short ripplemap[];
     ripplemap = ripple.ripplemap;
-    int sum = 0;
-    for (int i=0; i<ripplemap.length; i++) {
-      sum += abs(int(ripplemap[i]));
-    }
-    sum /= (width*height);
-    //  println((int)((random(sum)/53)*255));
+    
     updatePixels();
     ripple.newframe();
 
@@ -366,7 +359,7 @@ void draw() {
 
     int[]   depthMap = context.depthMap();
     int[]   userMap = context.userMap();
-    int     steps   = 2;  // to speed up the drawing, draw every third point
+    int     steps   = 3;  // to speed up the drawing, draw every third point
     int     index;
     PVector realWorldPoint;
 
@@ -374,7 +367,6 @@ void draw() {
 
     // draw the pointcloud
     beginShape(POINTS);
-    //  stroke((int)((random(sum)/53)*255), 0, 0);
     for (int y=0; y < context.depthHeight (); y+=steps) {
       for (int x=0; x < context.depthWidth (); x+=steps)
       {
@@ -384,19 +376,8 @@ void draw() {
           // draw the projected point
           realWorldPoint = context.depthMapRealWorld()[index];
           if (userMap[index] != 0) {
-            //          colorMode(HSB, 100);
-            //          stroke(255, 255, 255);
-            //          if (random(52)<sum){
-            //            stroke(255-(int)((random(sum)/53)*255), 0, 0);
-            ////            stroke(255-(int)((random(sum)/53)*255), 255-(int)((random(sum)/53)*255), 255-(int)((random(sum)/53)*255)); 
-            //          }else{
-            //            stroke(255, 255, 255);
-            //          }
-
             stroke(255, 255, 255);
             strokeWeight(2);
-            //          stroke(255-(int)((random(sum)/53)*255), 0, 0); 
-            //          ellipse(width/2, height/2, 150, 150);     
             vertex(realWorldPoint.x, realWorldPoint.y, realWorldPoint.z);
           }
         }
@@ -753,7 +734,7 @@ class Ripple {
 
   Ripple() {
     // constructor
-    riprad = 4;
+    riprad = 3;
     rwidth = width >> 1;
     rheight = height >> 1;
     ssize = width * (height + 2) * 2;
@@ -763,8 +744,6 @@ class Ripple {
     oldind = width;
     newind = width * (height + 3);
   }
-
-
 
   void newframe() {
     // update the height map and the image
@@ -779,7 +758,7 @@ class Ripple {
         short data = (short)((ripplemap[mapind - width] + ripplemap[mapind + width] + 
           ripplemap[mapind - 1] + ripplemap[mapind + 1]) >> 1);
         data -= ripplemap[newind + i];
-        data -= data >> 6;
+        data -= data >> 4;
         if (x == 0 || y == 0) // avoid the wraparound effect
           ripplemap[newind + i] = 0;
         else
